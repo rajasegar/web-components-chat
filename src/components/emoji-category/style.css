@@ -1,0 +1,14 @@
+.sc-emoji-picker--category {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.sc-emoji-picker--category-title {
+    min-width: 100%;
+    color: #b8c3ca;
+    font-weight: 200;
+    font-size: 13px;
+    margin: 5px;
+    letter-spacing: 1px;
+}
