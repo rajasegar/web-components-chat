@@ -1,6 +1,6 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
-import { uglify } from 'rollup-plugin-uglify';
+import { terser } from "rollup-plugin-terser";
 import string from 'rollup-plugin-string';
 import babel from 'rollup-plugin-babel';
 
@@ -22,7 +22,7 @@ export default {
     babel({
       exclude: 'node_modules/**' // only transpile our source code
     }),
-		production && uglify(), // minify, but only in production
+		production && terser(), // minify, but only in production
     string({
 			// Required to be specified
 			include: ['**/*.html','**/*.css'],
