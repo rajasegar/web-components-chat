@@ -1,37 +1,25 @@
-import Message from './c-message';
-import messageHistory from './messageHistory';
-
+import ElementMixin from '../../element-mixin';
+import messageHistory from '../../messageHistory';
+import Message from '../c-message';
+import style from './style.css';
+import html from './template.html';
 
 const template = document.createElement('template');
 template.innerHTML = `
 <style>
-.sc-message-list {
-  /* height: 80%; */
-  height: 200px;
-  overflow-y: auto;
-  background-color: white;
-  background-size: 100%;
-  padding: 40px 0px;
-}
+${style}
 </style>
-<div class="sc-message-list"></div>
+${html}
   `;
-export default class MessageList extends HTMLElement {
+
+export default class MessageList extends ElementMixin {
   constructor() {
-    super();
-    let shadowRoot = this.attachShadow({
-      mode: 'open'
-    });
-    shadowRoot.appendChild(template.content.cloneNode(true));
+    super(template);
 
   }
 
   static get observedAttributes() {
     return ['new-message', 'new-emoji'];
-  }
-
-  $(x) {
-    return this.shadowRoot.querySelector(x);
   }
 
   connectedCallback() {
@@ -53,16 +41,6 @@ export default class MessageList extends HTMLElement {
 
     }
 
-    /*
-    let newEmoji = this.getAttribute('new-emoji');
-    if (newEmoji) {
-      let rootEl = this.$('.sc-message-list');
-      let $message = document.createElement('c-message');
-      $message.setAttribute('data-emoji', newEmoji);
-      rootEl.appendChild($message);
-
-    }
-    */
   }
 }
 customElements.define('message-list', MessageList);

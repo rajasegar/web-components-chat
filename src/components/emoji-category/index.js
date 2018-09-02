@@ -1,4 +1,4 @@
-import ElementMixin from '../element-mixin';
+import ElementMixin from '../../element-mixin';
 import markup from './template.html';
 import style from './style.css';
 import Emoji from '../c-emoji';
