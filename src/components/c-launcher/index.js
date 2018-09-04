@@ -12,15 +12,12 @@ ${style}
 ${html}
   `;
 
-
 export default class Launcher extends ElementMixin {
   constructor() {
     super(template);
     this.addEventListener('toggle-launcher', e => {
       this.toggleChat();
     });
-
-    
   }
 
   toggleChat() {
