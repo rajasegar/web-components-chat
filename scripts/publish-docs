@@ -2,7 +2,7 @@
 npm run build
 mkdir /tmp/web-components-chat
 cp -R public/* /tmp/web-components-chat
-git chechout .
+git checkout .
 git checkout gh-pages
 rm  README.md rollup.config.js package.json package-lock.json
 rm -Rf ./scripts
