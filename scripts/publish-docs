@@ -9,6 +9,6 @@ rm -Rf ./src
 rm -Rf ./public
 cp -R /tmp/web-components-chat/* ./
 git add .
-git commit -m "Publishing docs for $(git describe --tags)"
+git commit -m "Publishing docs for $(git log -1 --pretty=%B)"
 git push origin gh-pages
 git checkout master
