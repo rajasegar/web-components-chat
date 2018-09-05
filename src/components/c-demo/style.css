@@ -1,6 +1,8 @@
 .demo-test-area {
     width: 300px;
     box-sizing: border-box;
+    align-self: center;
+    text-align: center;
 }
 
 .demo-test-area--text {

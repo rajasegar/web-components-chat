@@ -1,6 +1,5 @@
 .sc-message-list {
-    /* height: 80%; */
-    height: 200px;
+    height: 80%;
     overflow-y: auto;
     background-color: white;
     background-size: 100%;

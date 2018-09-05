@@ -42,7 +42,7 @@ export default class Launcher extends ElementMixin {
     });
 
     Promise.all([
-        customElements.whenDefined('chat-window'),
+      customElements.whenDefined('chat-window'),
       customElements.whenDefined('message-list'),
       customElements.whenDefined('widget-header')
       ])
