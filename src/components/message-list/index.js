@@ -2,15 +2,17 @@ import ElementMixin from '../../element-mixin';
 import messageHistory from '../../messageHistory';
 import Message from '../c-message';
 import style from './style.css';
-import html from './template.html';
+import markup from './template.html';
 
 const template = document.createElement('template');
 template.innerHTML = `
 <style>
 ${style}
 </style>
-${html}
+${markup}
   `;
+
+
 
 export default class MessageList extends ElementMixin {
   constructor() {
@@ -23,12 +25,15 @@ export default class MessageList extends ElementMixin {
   }
 
   connectedCallback() {
-    let rootEl = this.$('.sc-message-list');
-    messageHistory.forEach((m) => {
-      let message = document.createElement('c-message');
-      message.setAttribute('data-message', JSON.stringify(m));
-      rootEl.appendChild(message);
-    });
+    this.messages = messageHistory;
+    this.name = 'Rajasegar';
+    const messageList = (messages) => {
+        return messages.map((m) => {
+            return `<c-message type="${m.type}" author="${m.author}" message="${m.type === 'text' ? m.data.text : m.data.emoji}"></c-message>`;
+        }).join('');
+    };
+    let $rootEl = this.$('.sc-message-list');
+    $rootEl.innerHTML = messageList(this.messages);
   }
 
   attributeChangedCallback() {

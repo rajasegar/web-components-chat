@@ -8,6 +8,8 @@ class ElementMixin extends HTMLElement {
   $(x) {
     return this.shadowRoot.querySelector(x);
   }
+
+  
 }
 
 module.exports = ElementMixin;

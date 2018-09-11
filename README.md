@@ -4,7 +4,11 @@ A Live chat application crafted entirely using Web components
 ## Demo
 [Demo](https://rajasegar.github.io/web-components-chat/)
 
-Works only in Chrome, Opera and Safari. For Firefox you need to enable flag for Web components / Custom Elements.
+Works only in Chrome, Opera and Safari without polyfill. 
+For Firefox you need to enable flag for Web components / Custom Elements.
+This demo uses the polfill for browser consistency.
+
+Not tested in IE or Edge
 
 ## Usage
 Include script tag

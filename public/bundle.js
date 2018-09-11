@@ -188,7 +188,7 @@ ${markup}
     }
   }];
 
-  var markup$1 = "<div class=\"sc-message\">\n  <div class=\"sc-message--content\">\n    <div class=\"sc-message--avatar\" style=\"background-image: url('/assets/img/chat-icon.svg')\"></div>\n  </div>\n</div>\n";
+  var markup$1 = "<div class=\"sc-message\">\n  <div class=\"sc-message--content\">\n  </div>\n</div>\n";
 
   var style$2 = ".sc-message {\n  width: 300px;\n  margin: auto;\n  padding-bottom: 10px;\n  display: flex;\n}\n\n.sc-message--content {\n  width: 100%;\n  display: flex;\n}\n\n.sc-message--content.sent {\n  justify-content: flex-end;\n}\n\n.sc-message--content.sent .sc-message--avatar {\n  display: none;\n}\n\n.sc-message--avatar {\n  background-image: url(https://d13yacurqjgara.cloudfront.net/assets/avatar-default-aa2eab7684294781f93bc99ad394a0eb3249c5768c21390163c9f55ea8ef83a4.gif);\n  background-repeat: no-repeat;\n  background-size: 100%;\n  background-position: center;\n  min-width: 30px;\n  min-height: 30px;\n  border-radius: 50%;\n  align-self: center;\n  margin-right: 15px;\n}\n\n@media (max-width: 450px) {\n  .sc-message {\n    width: 80%;\n  }\n}\n";
 
@@ -243,7 +243,7 @@ ${markup$3}
   const template$4 = document.createElement('template');
   template$4.innerHTML = `
 <style>
-${style$2}
+  ${style$2}
 </style>
 ${markup$1}
 `;
@@ -252,53 +252,50 @@ ${markup$1}
       super(template$4);
     }
 
-    static get observedAttributes() {
-      return ['data-message', 'data-emoji'];
+    attributeChangedCallback() {}
+
+    connectedCallback() {
+      let _type = this.getAttribute('type');
+
+      let _message = this.getAttribute('message');
+
+      let _author = this.getAttribute('author');
+
+      let $content = this.$('.sc-message--content');
+
+      let _className = _type == 'text' ? 'sc-message--text' : 'sc-message--emoji';
+
+      let _send = _author == 'me' ? 'sent' : 'received';
+
+      _className = `${_className} ${_send}`;
+
+      const textMessage = (className, message) => {
+        return `
+      <div class="sc-message--avatar" style="background-image: url('/assets/img/chat-icon.svg')"></div>
+        <div class="${className}">${message}</div>`;
+      };
+
+      const emojiMessage = message => {
+        return `
+        <div class="sc-message--emoji">${message}</div>`;
+      };
+
+      $content.innerHTML = _type == 'text' ? textMessage(_className, _message) : emojiMessage(_message);
     }
-
-    attributeChangedCallback() {
-      let _message = JSON.parse(this.getAttribute('data-message'));
-
-      if (_message) {
-        let $content = this.$('.sc-message--content');
-        let $msg;
-
-        if (_message.type === 'text') {
-          $msg = document.createElement('text-message');
-          $msg.dataset.text = _message.data.text;
-
-          if (_message.author === 'me') {
-            $content.classList.add('sent');
-            $msg.dataset.sent = true;
-          } else {
-            $content.classList.add('received');
-            $msg.dataset.received = true;
-          }
-        } else {
-          $content.classList.add('sent');
-          $msg = document.createElement('emoji-message');
-          $msg.dataset.emoji = _message.data.emoji;
-        }
-
-        $content.appendChild($msg);
-      }
-    }
-
-    connectedCallback() {}
 
   }
   customElements.define('c-message', Message);
 
   var style$5 = ".sc-message-list {\n    height: 80%;\n    overflow-y: auto;\n    background-color: white;\n    background-size: 100%;\n    padding: 40px 0px;\n}\n";
 
-  var html$1 = "<div class=\"sc-message-list\"></div>\n";
+  var markup$4 = "<div class=\"sc-message-list\">\n</div>\n";
 
   const template$5 = document.createElement('template');
   template$5.innerHTML = `
 <style>
 ${style$5}
 </style>
-${html$1}
+${markup$4}
   `;
   class MessageList extends elementMixin {
     constructor() {
@@ -310,12 +307,17 @@ ${html$1}
     }
 
     connectedCallback() {
-      let rootEl = this.$('.sc-message-list');
-      messageHistory.forEach(m => {
-        let message = document.createElement('c-message');
-        message.setAttribute('data-message', JSON.stringify(m));
-        rootEl.appendChild(message);
-      });
+      this.messages = messageHistory;
+      this.name = 'Rajasegar';
+
+      const messageList = messages => {
+        return messages.map(m => {
+          return `<c-message type="${m.type}" author="${m.author}" message="${m.type === 'text' ? m.data.text : m.data.emoji}"></c-message>`;
+        }).join('');
+      };
+
+      let $rootEl = this.$('.sc-message-list');
+      $rootEl.innerHTML = messageList(this.messages);
     }
 
     attributeChangedCallback() {
@@ -349,11 +351,11 @@ ${html$1}
     emojis: ['🔟', '🔢', '🔣', '🔠', '🔡', '🔤', '🔼', '🔽', '⏪', '⏩', '⏫', '⏬', '🆗', '🆕', '🆙', '🆒', '🆓', '🆖', '📶', '🎦', '🈁', '🈯', '🈳', '🈵', '🈴', '🈲', '🉐', '🈹', '🈺', '🈶', '🈚', '🚻', '🚹', '🚺', '🚼', '🚾', '🚭', '🈸', '🉑', '🆑', '🆘', '🆔', '🚫', '🔞', '⛔', '❎', '✅', '💟', '🆚', '📳', '📴', '🆎', '💠', '⛎', '🔯', '🏧', '💹', '💲', '💱', '❌', '❗', '❓', '❕', '❔', '⭕', '🔝', '🔚', '🔙', '🔛', '🔜', '🔃', '🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '➕', '➖', '➗', '💮', '💯', '🔘', '🔗', '➰', '🔱', '🔺', '🔲', '🔳', '🔴', '🔵', '🔻', '⬜', '⬛', '🔶', '🔷', '🔸', '🔹']
   }];
 
-  var markup$4 = "<div class=\"sc-emoji-picker--category\">\n  <div class=\"sc-emoji-picker--category-title\"></div>\n</div>\n";
+  var markup$5 = "<div class=\"sc-emoji-picker--category\">\n  <div class=\"sc-emoji-picker--category-title\"></div>\n</div>\n";
 
   var style$6 = ".sc-emoji-picker--category {\n    display: flex;\n    flex-direction: row;\n    flex-wrap: wrap;\n}\n\n.sc-emoji-picker--category-title {\n    min-width: 100%;\n    color: #b8c3ca;\n    font-weight: 200;\n    font-size: 13px;\n    margin: 5px;\n    letter-spacing: 1px;\n}\n";
 
-  var markup$5 = "<span class=\"sc-emoji-picker--emoji\"></span>\n";
+  var markup$6 = "<span class=\"sc-emoji-picker--emoji\"></span>\n";
 
   var style$7 = ".sc-emoji-picker--emoji {\n    margin: 5px;\n    width: 30px;\n    line-height: 30px;\n    text-align: center;\n    cursor: pointer;\n    vertical-align: middle;\n    font-size: 28px;\n    transition: transform 60ms ease-out,-webkit-transform 60ms ease-out;\n}\n\n.sc-emoji-picker--emoji:hover {\n    transform: scale(1.4);\n}\n";
 
@@ -362,7 +364,7 @@ ${html$1}
 <style>
 ${style$7}
 </style>
-${markup$5}
+${markup$6}
 `;
   class Emoji extends elementMixin {
     constructor() {
@@ -413,7 +415,7 @@ ${markup$5}
 <style>
 ${style$6}
 </style>
-${markup$4}
+${markup$5}
 `;
   class EmojiCategory extends elementMixin {
     constructor() {
@@ -459,14 +461,14 @@ ${markup$4}
 
   var style$8 = ".sc-emoji-picker {\n    position: absolute;\n    bottom: 50px;\n    right: 0px;\n    width: 330px;\n    max-height: 215px;\n    box-shadow: 0px 7px 40px 2px rgba(148, 149, 150, 0.3);\n    background: white;\n    border-radius: 10px;\n    outline: none;\n}\n\n.sc-emoji-picker:after {\n    content: \"\";\n    width: 14px;\n    height: 14px;\n    background: white;\n    position: absolute;\n    bottom: -6px;\n    right: 30px;\n    transform: rotate(45deg);\n    border-radius: 2px;\n}\n\n.sc-emoji-picker--content {\n    padding: 10px;\n    overflow: auto;\n    width: 100%;\n    max-height: 195px;\n    margin-top: 7px;\n    box-sizing: border-box;\n}\n\n\n\n.sc-emoji-picker--emoji {\n    margin: 5px;\n    width: 30px;\n    line-height: 30px;\n    text-align: center;\n    cursor: pointer;\n    vertical-align: middle;\n    font-size: 28px;\n    transition: transform 60ms ease-out,-webkit-transform 60ms ease-out;\n}\n\n.sc-emoji-picker--emoji:hover {\n    transform: scale(1.4);\n}\n";
 
-  var html$2 = "<div tab-index=\"0\" class=\"sc-emoji-picker\" >\n        <div class=\"sc-emoji-picker--content\">\n        </div>\n      </div>\n\n";
+  var html$1 = "<div tab-index=\"0\" class=\"sc-emoji-picker\" >\n        <div class=\"sc-emoji-picker--content\">\n        </div>\n      </div>\n\n";
 
   const template$8 = document.createElement('template');
   template$8.innerHTML = `
 <style>
 ${style$8}
 </style>
-${html$2}
+${html$1}
 `;
   class EmojiPicker extends elementMixin {
     constructor() {
@@ -492,14 +494,14 @@ ${html$2}
 
   var style$9 = ".sc-user-input--emoji-icon-wrapper {\n    background: none;\n    border: none;\n    padding: 0px;\n    margin: 0px;\n}\n\n.sc-user-input--emoji-icon-wrapper:focus {\n    outline: none;\n}\n\n.sc-user-input--emoji-icon {\n    height: 18px;\n    cursor: pointer;\n    align-self: center;\n}\n\n.sc-user-input--emoji-icon path, .sc-user-input--emoji-icon circle {\n    fill: rgba(86, 88, 103, 0.3);\n}\n\n.sc-user-input--emoji-icon-wrapper:focus .sc-user-input--emoji-icon path,\n.sc-user-input--emoji-icon-wrapper:focus .sc-user-input--emoji-icon circle,\n.sc-user-input--emoji-icon.active path,\n.sc-user-input--emoji-icon.active circle,\n.sc-user-input--emoji-icon:hover path,\n.sc-user-input--emoji-icon:hover circle {\n    fill: rgba(86, 88, 103, 1);\n}\n";
 
-  var html$3 = "<div class=\"sc-user-input--picker-wrapper\">\n        <emoji-picker hidden></emoji-picker>\n      <button class=\"sc-user-input--emoji-icon-wrapper\">\n        <svg\n          class=\"sc-user-input--emoji-icon\"\n          version=\"1.1\"\n          id=\"Layer_2\"\n          xmlns=\"http://www.w3.org/2000/svg\"\n          x=\"0px\"\n          y=\"0px\"\n          width=\"37.393px\"\n          height=\"37.393px\"\n          viewBox=\"0 0 37.393 37.393\"\n          enableBackground=\"new 0 0 37.393 37.393\"\n        >\n          <g>\n            <path d=\"M18.696,37.393C8.387,37.393,0,29.006,0,18.696C0,8.387,8.387,0,18.696,0c10.31,0,18.696,8.387,18.696,18.696\n              C37.393,29.006,29.006,37.393,18.696,37.393z M18.696,2C9.49,2,2,9.49,2,18.696c0,9.206,7.49,16.696,16.696,16.696\n              c9.206,0,16.696-7.49,16.696-16.696C35.393,9.49,27.902,2,18.696,2z\"\n            />\n          </g>\n          <g>\n            <circle cx=\"12.379\" cy=\"14.359\" r=\"1.938\" />\n          </g>\n          <g>\n            <circle cx=\"24.371\" cy=\"14.414\" r=\"1.992\" />\n          </g>\n          <g>\n            <path d=\"M18.035,27.453c-5.748,0-8.342-4.18-8.449-4.357c-0.286-0.473-0.135-1.087,0.338-1.373\n              c0.471-0.286,1.084-0.136,1.372,0.335c0.094,0.151,2.161,3.396,6.74,3.396c4.713,0,7.518-3.462,7.545-3.497\n              c0.343-0.432,0.973-0.504,1.405-0.161c0.433,0.344,0.505,0.973,0.161,1.405C27.009,23.374,23.703,27.453,18.035,27.453z\"\n            />\n          </g>\n        </svg>\n      </button>\n      </div>\n";
+  var html$2 = "<div class=\"sc-user-input--picker-wrapper\">\n        <emoji-picker hidden></emoji-picker>\n      <button class=\"sc-user-input--emoji-icon-wrapper\">\n        <svg\n          class=\"sc-user-input--emoji-icon\"\n          version=\"1.1\"\n          id=\"Layer_2\"\n          xmlns=\"http://www.w3.org/2000/svg\"\n          x=\"0px\"\n          y=\"0px\"\n          width=\"37.393px\"\n          height=\"37.393px\"\n          viewBox=\"0 0 37.393 37.393\"\n          enableBackground=\"new 0 0 37.393 37.393\"\n        >\n          <g>\n            <path d=\"M18.696,37.393C8.387,37.393,0,29.006,0,18.696C0,8.387,8.387,0,18.696,0c10.31,0,18.696,8.387,18.696,18.696\n              C37.393,29.006,29.006,37.393,18.696,37.393z M18.696,2C9.49,2,2,9.49,2,18.696c0,9.206,7.49,16.696,16.696,16.696\n              c9.206,0,16.696-7.49,16.696-16.696C35.393,9.49,27.902,2,18.696,2z\"\n            />\n          </g>\n          <g>\n            <circle cx=\"12.379\" cy=\"14.359\" r=\"1.938\" />\n          </g>\n          <g>\n            <circle cx=\"24.371\" cy=\"14.414\" r=\"1.992\" />\n          </g>\n          <g>\n            <path d=\"M18.035,27.453c-5.748,0-8.342-4.18-8.449-4.357c-0.286-0.473-0.135-1.087,0.338-1.373\n              c0.471-0.286,1.084-0.136,1.372,0.335c0.094,0.151,2.161,3.396,6.74,3.396c4.713,0,7.518-3.462,7.545-3.497\n              c0.343-0.432,0.973-0.504,1.405-0.161c0.433,0.344,0.505,0.973,0.161,1.405C27.009,23.374,23.703,27.453,18.035,27.453z\"\n            />\n          </g>\n        </svg>\n      </button>\n      </div>\n";
 
   const template$9 = document.createElement('template');
   template$9.innerHTML = `
 <style>
 ${style$9}
 </style>
-${html$3}
+${html$2}
 `;
   class EmojiIcon extends elementMixin {
     constructor() {
@@ -541,14 +543,14 @@ ${html$3}
 
   var style$a = ".sc-user-input--send-icon {\n    height: 20px;\n    width: 20px;\n    cursor: pointer;\n    align-self: center;\n    outline: none;\n}\n\n.sc-user-input--send-icon path {\n    fill: rgba(86, 88, 103, 0.3);\n}\n\n.sc-user-input--send-icon:hover path {\n    fill: rgba(86, 88, 103, 1);\n}\n\n.sc-user-input--send-icon-wrapper {\n    background: none;\n    border: none;\n    padding: 0px;\n    margin: 0px;\n}\n";
 
-  var html$4 = "<button class=\"sc-user-input--send-icon-wrapper\">\n      <svg\n        version='1.1'\n        class=\"sc-user-input--send-icon\"\n        xmlns='http://www.w3.org/2000/svg'\n        x='0px'\n        y='0px'\n        width='37.393px'\n        height='37.393px'\n        viewBox='0 0 37.393 37.393'\n        enableBackground='new 0 0 37.393 37.393'>\n        <g id='Layer_2'>\n          <path d='M36.511,17.594L2.371,2.932c-0.374-0.161-0.81-0.079-1.1,0.21C0.982,3.43,0.896,3.865,1.055,4.241l5.613,13.263\n          L2.082,32.295c-0.115,0.372-0.004,0.777,0.285,1.038c0.188,0.169,0.427,0.258,0.67,0.258c0.132,0,0.266-0.026,0.392-0.08\n          l33.079-14.078c0.368-0.157,0.607-0.519,0.608-0.919S36.879,17.752,36.511,17.594z M4.632,30.825L8.469,18.45h8.061\n          c0.552,0,1-0.448,1-1s-0.448-1-1-1H8.395L3.866,5.751l29.706,12.757L4.632,30.825z' />\n        </g>\n      </svg>\n    </button>\n";
+  var html$3 = "<button class=\"sc-user-input--send-icon-wrapper\">\n      <svg\n        version='1.1'\n        class=\"sc-user-input--send-icon\"\n        xmlns='http://www.w3.org/2000/svg'\n        x='0px'\n        y='0px'\n        width='37.393px'\n        height='37.393px'\n        viewBox='0 0 37.393 37.393'\n        enableBackground='new 0 0 37.393 37.393'>\n        <g id='Layer_2'>\n          <path d='M36.511,17.594L2.371,2.932c-0.374-0.161-0.81-0.079-1.1,0.21C0.982,3.43,0.896,3.865,1.055,4.241l5.613,13.263\n          L2.082,32.295c-0.115,0.372-0.004,0.777,0.285,1.038c0.188,0.169,0.427,0.258,0.67,0.258c0.132,0,0.266-0.026,0.392-0.08\n          l33.079-14.078c0.368-0.157,0.607-0.519,0.608-0.919S36.879,17.752,36.511,17.594z M4.632,30.825L8.469,18.45h8.061\n          c0.552,0,1-0.448,1-1s-0.448-1-1-1H8.395L3.866,5.751l29.706,12.757L4.632,30.825z' />\n        </g>\n      </svg>\n    </button>\n";
 
   const template$a = document.createElement('template');
   template$a.innerHTML = `
 <style>
 ${style$a}
 </style>
-${html$4}
+${html$3}
 `;
   class SendIcon extends elementMixin {
     constructor() {
@@ -560,14 +562,14 @@ ${html$4}
 
   var style$b = ".sc-user-input {\n  min-height: 55px;\n  margin: 0px;\n  position: relative;\n  bottom: 0;\n  display: flex;\n  background-color: #f4f7f9;\n  border-bottom-left-radius: 10px;\n  border-bottom-right-radius: 10px;\n  transition: background-color .2s ease,box-shadow .2s ease;\n}\n\n\n.sc-user-input--text {\n  width: 300px;\n  resize: none;\n  border: none;\n  outline: none;\n  border-bottom-left-radius: 10px;\n  box-sizing: border-box;\n  padding: 18px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 1.33;\n  white-space: pre-wrap;\n  word-wrap: break-word;\n  color: #565867;\n  -webkit-font-smoothing: antialiased;\n  max-height: 200px;\n  overflow: scroll;\n  bottom: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n}\n\n.sc-user-input--text:empty:before {\n  content: attr(placeholder);\n  display: block; /* For Firefox */\n  color: rgba(86, 88, 103, 0.3);\n  outline: none;\n}\n\n.sc-user-input--buttons {\n  width: 100px;\n  position: absolute;\n  right: 30px;\n  height: 100%;\n  display: flex;\n}\n\n.sc-user-input--button:first-of-type {\n  width: 40px;\n}\n\n.sc-user-input--button {\n  width: 30px;\n  height: 55px;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}\n\n.sc-user-input.active {\n  box-shadow: none;\n  background-color: white;\n  box-shadow: 0px -5px 20px 0px rgba(150, 165, 190, 0.2);\n}\n\n.sc-user-input--send-icon {\n  height: 20px;\n  width: 20px;\n  cursor: pointer;\n  align-self: center;\n  outline: none;\n}\n\n.sc-user-input--send-icon path {\n  fill: rgba(86, 88, 103, 0.3);\n}\n\n.sc-user-input--send-icon:hover path {\n  fill: rgba(86, 88, 103, 1);\n}\n\n.sc-user-input--emoji-icon-wrapper,\n.sc-user-input--send-icon-wrapper {\n  background: none;\n  border: none;\n  padding: 0px;\n  margin: 0px;\n}\n\n.sc-user-input--emoji-icon-wrapper:focus {\n  outline: none;\n}\n\n.sc-user-input--emoji-icon {\n  height: 18px;\n  cursor: pointer;\n  align-self: center;\n}\n\n.sc-user-input--emoji-icon path, .sc-user-input--emoji-icon circle {\n  fill: rgba(86, 88, 103, 0.3);\n}\n\n.sc-user-input--emoji-icon-wrapper:focus .sc-user-input--emoji-icon path,\n.sc-user-input--emoji-icon-wrapper:focus .sc-user-input--emoji-icon circle,\n.sc-user-input--emoji-icon.active path,\n.sc-user-input--emoji-icon.active circle,\n.sc-user-input--emoji-icon:hover path,\n.sc-user-input--emoji-icon:hover circle {\n  fill: rgba(86, 88, 103, 1);\n}\n";
 
-  var html$5 = "<form class=\"sc-user-input\">\n        <div\n          role=\"button\"\n          tabIndex=\"0\"\n          contentEditable=\"true\"\n          placeholder=\"Write a reply...\"\n          class=\"sc-user-input--text\"\n        >\n        </div>\n        <div class=\"sc-user-input--buttons\">\n          <div class=\"sc-user-input--button\"></div>\n          <div class=\"sc-user-input--button\">\n            <emoji-icon/>\n          </div>\n          <div class=\"sc-user-input--button\">\n            <send-icon/>\n          </div>\n        </div>\n      </form>\n";
+  var html$4 = "<form class=\"sc-user-input\">\n        <div\n          role=\"button\"\n          tabIndex=\"0\"\n          contentEditable=\"true\"\n          placeholder=\"Write a reply...\"\n          class=\"sc-user-input--text\"\n        >\n        </div>\n        <div class=\"sc-user-input--buttons\">\n          <div class=\"sc-user-input--button\"></div>\n          <div class=\"sc-user-input--button\">\n            <emoji-icon/>\n          </div>\n          <div class=\"sc-user-input--button\">\n            <send-icon/>\n          </div>\n        </div>\n      </form>\n";
 
   const template$b = document.createElement('template');
   template$b.innerHTML = `
 <style>
 ${style$b}
 </style>
-${html$5}
+${html$4}
 `;
   class UserInput extends elementMixin {
     constructor() {
@@ -606,14 +608,14 @@ ${html$5}
 
   var style$c = ".sc-chat-window {\n    width: 370px;\n    height: calc(100% - 120px);\n    max-height: 490px;\n    position: fixed;\n    right: 25px;\n    bottom: 230px;\n    box-sizing: border-box;\n    box-shadow: 0px 7px 40px 2px rgba(148, 149, 150, 0.3);\n    background: white;\n    transition: 0.3s ease-in-out;\n    border-radius: 10px;\n    font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n}\n\n.sc-chat-window.closed {\n    opacity: 0;\n    visibility: hidden;\n    bottom: 90px;\n}\n";
 
-  var html$6 = "<div class=\"sc-chat-window\">\n  <widget-header team-name=\"\" image-url=\"\"></widget-header>\n  <message-list new-message=\"\"></message-list>\n  <user-input></user-input>\n</div>\n";
+  var html$5 = "<div class=\"sc-chat-window\">\n  <widget-header team-name=\"\" image-url=\"\"></widget-header>\n  <message-list new-message=\"\"></message-list>\n  <user-input></user-input>\n</div>\n";
 
   const template$c = document.createElement('template');
   template$c.innerHTML = `
 <style>
 ${style$c}
 </style>
-${html$6}
+${html$5}
   `;
   class ChatWindow extends elementMixin {
     constructor() {
@@ -661,14 +663,14 @@ ${html$6}
 
   var style$d = ".sc-launcher {\n  width: 60px;\n  height: 60px;\n  background-color: #4e8cff;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: fixed;\n  right: 25px;\n  bottom: 25px;\n  border-radius: 50%;\n  box-shadow: none;\n  transition: box-shadow 0.2s ease-in-out;\n}\n\n.sc-launcher:before {\n  content: '';\n  position: relative;\n  display: block;\n  width: 60px;\n  height: 60px;\n  border-radius: 50%;\n  transition: box-shadow 0.2s ease-in-out;\n}\n\n.sc-launcher .sc-open-icon,\n.sc-launcher .sc-closed-icon {\n  width: 60px;\n  height: 60px;\n  position: fixed;\n  right: 25px;\n  bottom: 25px;\n  transition: opacity 100ms ease-in-out, transform 100ms ease-in-out;\n}\n\n.sc-launcher .sc-closed-icon {\n  transition: opacity 100ms ease-in-out, transform 100ms ease-in-out;\n  width: 60px;\n  height: 60px;\n}\n\n.sc-launcher .sc-open-icon {\n  padding: 20px;\n  box-sizing: border-box;\n  opacity: 0;\n}\n\n.sc-launcher.opened .sc-open-icon {\n  transform: rotate(-90deg);\n  opacity: 1;\n}\n\n.sc-launcher.opened .sc-closed-icon {\n  transform: rotate(-90deg);\n  opacity: 0;\n}\n\n.sc-launcher.opened:before {\n  box-shadow: 0px 0px 400px 250px rgba(148, 149, 150, 0.2);\n}\n\n.sc-launcher:hover {\n  box-shadow: 0 0px 27px 1.5px rgba(0,0,0,0.2);\n}\n";
 
-  var html$7 = "<div>\n<div></div>\n        <div class=\"sc-launcher\">\n  <message-count count=\"0\"></message-count>\n          <img class=\"sc-open-icon\" src=\"assets/img/close-icon.png\" />\n          <img class=\"sc-closed-icon\" src=\"assets/img/chat-icon.svg\" />\n        </div>\n<chat-window team-name=\"\" image-url=\"\"></chat-window>\n</div>\n";
+  var html$6 = "<div>\n<div></div>\n        <div class=\"sc-launcher\">\n  <message-count count=\"0\"></message-count>\n          <img class=\"sc-open-icon\" src=\"assets/img/close-icon.png\" />\n          <img class=\"sc-closed-icon\" src=\"assets/img/chat-icon.svg\" />\n        </div>\n<chat-window team-name=\"\" image-url=\"\"></chat-window>\n</div>\n";
 
   const template$d = document.createElement('template');
   template$d.innerHTML = `
 <style>
 ${style$d}
 </style>
-${html$7}
+${html$6}
   `;
   class Launcher extends elementMixin {
     constructor() {
@@ -711,14 +713,14 @@ ${html$7}
 
   var style$e = ".demo-test-area {\n    width: 300px;\n    box-sizing: border-box;\n    align-self: center;\n    text-align: center;\n}\n\n.demo-test-area--text {\n    box-sizing: border-box;\n    width: 100%;\n    margin: 0px;\n    padding: 0px;\n    resize: none;\n    font-family: Avenir Next, Helvetica Neue, Helvetica,sans-serif;\n    background: #fafbfc;\n    color: #8da2b5;\n    border: 1px solid #dde5ed;\n    font-size: 16px;\n    padding: 16px 15px 14px;\n    margin: 0;\n    border-radius: 6px;\n    outline: none;\n    height: 150px;\n    margin-bottom: 10px;\n}\n\n\n\n.demo-test-area--preamble {\n    padding: 20px 0px;\n}\n\n.demo-test-area--button {\n    font-family: Avenir Next, Helvetica Neue, Helvetica,sans-serif;\n    font-weight: 400;\n    margin-top: 20px;\n    user-select: none;\n    border: none;\n    line-height: 1.4;\n    text-decoration: none;\n    background: linear-gradient(45deg,#EEA849,#F46B45);\n    color: white;\n    padding: 6px 10px;\n    font-size: 20px;\n    height: 50px;\n    border-radius: 4px;\n    width: 80%;\n    box-sizing: border-box;\n    outline: none;\n    cursor: pointer;\n    align-self: center;\n}\n\n.demo-test-area--button:hover {\n    background: linear-gradient(45deg,#F46B45 , #EEA849);\n}\n";
 
-  var html$8 = "<form class=\"demo-test-area\">\n  <div class=\"demo-test-area--preamble\">Test the chat window by sending a message:</div>\n  <textarea class=\"demo-test-area--text\" placeholder=\"Write a test message....\"></textarea>\n  <button class=\"demo-test-area--button\"> Send Message! </button>\n</form>\n";
+  var html$7 = "<form class=\"demo-test-area\">\n  <div class=\"demo-test-area--preamble\">Test the chat window by sending a message:</div>\n  <textarea class=\"demo-test-area--text\" placeholder=\"Write a test message....\"></textarea>\n  <button class=\"demo-test-area--button\"> Send Message! </button>\n</form>\n";
 
   const template$e = document.createElement('template');
   template$e.innerHTML = `
 <style>
 ${style$e}
 </style>
-${html$8}
+${html$7}
 `;
   class Demo extends elementMixin {
     constructor() {
